@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import seaborn as sns
 
-# Page Configuration & Dark Dashboard Setup
+
 st.set_page_config(page_title="WhatsApp Chat Analytics", page_icon="", layout="wide")
 
-# Custom CSS for Dark Metric Cards matching Viridis Accents
+
 st.markdown("""
     <style>
     /* Metric Card Custom Styling */
@@ -34,9 +34,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# Cleaned Sidebar (Single Uploader)
-# ---------------------------------------------------------
 st.sidebar.title("Whatsapp Chat Analytics")
 
 # Single Unified File Uploader
@@ -65,9 +62,7 @@ if uploaded_file is not None:
     selected_user = st.sidebar.selectbox("Show analysis W.R.T", user_list)
 
     if st.sidebar.button("Generate Dashboard", use_container_width=True):
-        # ---------------------------------------------------------
-        # Dynamic Top Overview KPI Row
-        # ---------------------------------------------------------
+        
         title_prefix = "Group Overview" if selected_user == "Overall" else f"Overview for {selected_user}"
         st.title(f" {title_prefix}")
 
@@ -201,24 +196,24 @@ if uploaded_file is not None:
                 x=user_heatmap.columns,
                 y=user_heatmap.index,
                 color_continuous_scale="Viridis",
-                aspect="auto"  # Dynamically adjusts cell aspect ratio
+                aspect="auto"  
             )
 
-            # Style interactive hover card and cell gap borders
+            
             fig_heatmap.update_traces(
                 hovertemplate="<b>Day:</b> %{y}<br><b>Period:</b> %{x}<br><b>Messages:</b> %{z}<extra></extra>",
                 xgap=2,
                 ygap=2
             )
 
-            # Force axes to constrain to domain so cells scale outward horizontally
+          
             fig_heatmap.update_xaxes(constrain='domain')
             fig_heatmap.update_yaxes(scaleanchor=None)
 
             fig_heatmap.update_layout(
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
-                autosize=True,  # Forces plot to fill container width completely
+                autosize=True,  
                 coloraxis_colorbar=dict(
                     title=dict(text="Messages", font=dict(color="white", size=12)),
                     tickfont=dict(color="white", size=11),
@@ -238,15 +233,15 @@ if uploaded_file is not None:
                     title=dict(text="Day", font=dict(color="white", size=12))
                 ),
                 margin=dict(l=0, r=0, t=20, b=10),
-                height=380  # Keeps vertical thickness balanced while horizontal expands
+                height=380 
             )
 
-            # Render directly without wrapping in narrow columns
+            
             st.plotly_chart(fig_heatmap, use_container_width=True)
         else:
             st.info("No activity heatmap data available.")
 
-        # Finding the busiest users in the group (grp level)
+      
         if selected_user == 'Overall':
             st.title('Most Busy Users')
             x, new_df = helper.most_busy_users(df)
@@ -254,7 +249,7 @@ if uploaded_file is not None:
             col1, col2 = st.columns([5, 5])
 
             with col1:
-                # Convert index explicitly to string list to prevent numeric scale parsing
+                
                 x_names = [str(name) for name in x.index]
 
                 fig_busy = px.bar(
@@ -279,7 +274,7 @@ if uploaded_file is not None:
                     plot_bgcolor='rgba(0,0,0,0)',
                     coloraxis_showscale=False,
                     xaxis=dict(
-                        type='category',  # Forces string category mode (fixes missing names & 919.1B issue)
+                        type='category',  
                         showgrid=False,
                         color='white',
                         tickangle=-45,
@@ -292,7 +287,7 @@ if uploaded_file is not None:
                 st.plotly_chart(fig_busy, use_container_width=True)
 
             with col2:
-                # Standardize dataframe column names and keep clean table view
+               
                 display_df = new_df.copy()
 
                 if 'percent' in display_df.columns and 'count' in display_df.columns:
@@ -326,7 +321,12 @@ if uploaded_file is not None:
                     mime="text/csv",
                     key=f"download_{selected_user}_busy"
                 )
-#===============================================================
+
+
+
+
+
+        
         # Wordcloud
         st.title("Word Cloud")
         df_wc = helper.create_wordcloud(selected_user, df)
@@ -345,7 +345,7 @@ if uploaded_file is not None:
 
         plt.tight_layout(pad=0)
         st.pyplot(fig)
-#===============================================================
+
         # Most Common Words or Symbols
         st.title('Most Common Words or Symbols')
         most_common_df = helper.most_common_words(selected_user, df)
@@ -388,7 +388,13 @@ if uploaded_file is not None:
             st.plotly_chart(fig_words, use_container_width=True)
         else:
             st.info("No common words data available.")
-#======================================================================
+
+
+
+
+
+
+        
         # Emoji analysis
         if selected_user == 'Overall':
             st.title("Emoji Analysis")
@@ -422,9 +428,13 @@ if uploaded_file is not None:
                     }
                 )
 
-                # ---------------------------------------------------------
-                # Fill Blank Space: Summary Metrics Cards
-                # ---------------------------------------------------------
+
+
+
+
+
+
+                
                 total_emojis = int(display_emoji_df['Count'].sum())
                 top_emoji_char = display_emoji_df.iloc[0]['Emoji'] if not display_emoji_df.empty else "-"
                 top_emoji_count = int(display_emoji_df.iloc[0]['Count']) if not display_emoji_df.empty else 0
@@ -470,7 +480,11 @@ if uploaded_file is not None:
                     hovertemplate='<b>Emoji:</b> %{y}<br><b>Count:</b> %{x}<extra></extra>'
                 )
 
-                # Dynamic height calculation prevents a single bar from blowing up vertically
+
+
+
+
+                
                 num_items = len(top_emojis)
                 calculated_height = 160 + (num_items * 40)
 
@@ -507,13 +521,13 @@ if uploaded_file is not None:
             col1, col2 = st.columns([5, 5])
 
             with col1:
-                # Prepare table view without row index numbers
+         
                 display_latency_df = latency_df.rename(columns={'Avg_Response_Time_Mins': 'Median Delay (Mins)'}).copy()
 
                 st.dataframe(
                     display_latency_df,
                     use_container_width=True,
-                    hide_index=True,  # Removes 0, 1, 2... row numbers
+                    hide_index=True, 
                     column_config={
                         "User": st.column_config.TextColumn("User"),
                         "Median Delay (Mins)": st.column_config.NumberColumn(
@@ -524,7 +538,7 @@ if uploaded_file is not None:
                     }
                 )
 
-                # Useful metric card filling the blank space below the table
+            
                 avg_delay = latency_df['Avg_Response_Time_Mins'].values[0] if not latency_df.empty else 0
 
                 if avg_delay < 5:
@@ -585,9 +599,10 @@ if uploaded_file is not None:
         else:
             st.info("Insufficient message timing data to compute response latency.")
 
-        # ---------------------------------------------------------
-        # Message Length vs Volubility
-        # ---------------------------------------------------------
+
+
+
+        
         st.title("Message Length vs. Volubility")
 
         volubility_df = helper.message_length_analysis(selected_user, df)
@@ -612,7 +627,7 @@ if uploaded_file is not None:
                 }
             )
 
-            # Style marker size, borders, and transparency
+           
             fig_scatter.update_traces(
                 marker=dict(
                     sizemode='area',
@@ -645,9 +660,10 @@ if uploaded_file is not None:
         else:
             st.info("No volubility data available.")
 
-        # ---------------------------------------------------------
-        # Individual Analytics: Top Conversational Partners
-        # ---------------------------------------------------------
+
+
+
+        
         if selected_user != 'Overall':
             display_name = "Your Profile" if selected_user == "You" else selected_user
             st.title(f"Conversational Partners for {display_name}")
